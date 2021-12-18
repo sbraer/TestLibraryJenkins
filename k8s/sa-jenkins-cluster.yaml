@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-jenkins-cluster
+  namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sa-pods-role
+rules:
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create","get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: allow-cluster-info
+subjects:
+- kind: ServiceAccount
+  name: sa-jenkins-cluster
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: sa-pods-role
+  apiGroup: rbac.authorization.k8s.io

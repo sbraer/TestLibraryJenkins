@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      securityContext:
+        fsGroup: 1000 
+        runAsUser: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      serviceAccountName: sa-jenkins-cluster
+      containers:
+      - name: jenkins
+        image: jenkins/jenkins:lts-jdk11
+        ports:
+        - containerPort: 8080
+          name: httpx
+        - containerPort: 50000
+          name: tcpx
+        volumeMounts:
+        - name: my-pv-storage
+          mountPath: /var/jenkins_home
+      volumes:
+      - name: my-pv-storage
+        persistentVolumeClaim:
+          claimName: my-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: jenkins
+  ports:
+    - protocol: TCP
+      name: html
+      port: 8080
+      targetPort: 8080
+    - protocol: TCP
+      name: tcp
+      port: 50000
+      targetPort: 50000
+  type: LoadBalancer
+  #externalIPs: # <- per minikube
+  #- 192.168.49.2 # <- per minikune. Ip = minikube ip dal terminale

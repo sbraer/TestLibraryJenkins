@@ -11,12 +11,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extra", "Extra", "{C98B0DAD
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EEB2DC9D-E1B7-4620-8EB5-C3BCBA76827A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{EEB2DC9D-E1B7-4620-8EB5-C3BCBA76827A}"
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalApi", "MinimalApi\MinimalApi.csproj", "{61214C2C-9E3D-46F4-BA32-4E3B33F0FE87}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "k8s", "k8s", "{0FB6D125-6266-4663-AA78-B2FC7474580F}"
+	ProjectSection(SolutionItems) = preProject
+		k8s\jenkins1.yaml = k8s\jenkins1.yaml
+		k8s\pvc.yaml = k8s\pvc.yaml
+		k8s\sa-jenkins-account.yaml = k8s\sa-jenkins-account.yaml
+		k8s\sa-jenkins-cluster.yaml = k8s\sa-jenkins-cluster.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
