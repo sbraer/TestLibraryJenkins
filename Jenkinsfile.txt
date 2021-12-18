@@ -1,0 +1,53 @@
+pipeline {
+  agent {
+    kubernetes {
+      inheritFrom 'az-app2'  // all your pods will be named with this prefix, followed by a unique id
+      idleMinutes 5  // how long the pod will live after no jobs have run on it
+      yamlFile 'build-pod.yaml'  // path to the pod definition relative to the root of our project 
+      defaultContainer 'kaniko'  // define a default container if more than a few stages use it, will default to jnlp container
+    }
+  }
+  stages {
+    stage('Build dotnet solution') {
+      steps {
+        container('dotnet6') {
+          script {
+            sh '''
+            dotnet publish MinimalApi/MinimalApi.csproj -p:PublishSingleFile=true -r \
+            linux-musl-x64 -c Release --self-contained true -p:EnableCompressionInSingleFile=true \
+            -p:PublishTrimmed=true  -o out
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Kaniko create and push image') {
+      steps {
+        container('kaniko') {
+          script {
+            sh '''
+            /kaniko/executor --dockerfile `pwd`/Dockerfile \
+                             --context `pwd` \
+                             --destination=sbraer/minimalapi:${BUILD_NUMBER} \
+                             --cache=true \
+                             --cache-copy-layers=true \
+                             --cache-repo=sbraer/kaniko-cache
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Test Kubectl') {
+      steps {
+        container('kubectl') {
+          script {
+            sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" minimalapi.yaml'
+            sh "kubectl apply -f minimalapi.yaml"
+          }
+        }
+      }
+    }
+  }
+}

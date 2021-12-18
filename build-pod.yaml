@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  serviceAccountName: sa-jenkins-account
+  containers:
+  - name: dotnet6
+    image: mcr.microsoft.com/dotnet/sdk:6.0-alpine
+    command: ["sleep", "infinity"]
+    tty: true    
+  - name: kubectl
+    image: atlassian/pipelines-kubectl:1.22.3
+    command: ["sleep", "infinity"]
+    tty: true    
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    command: ["sleep", "infinity"]
+    tty: true
+    env:
+    - name: container
+      value: docker
+    volumeMounts:
+      - name: kaniko-secret
+        mountPath: /kaniko/.docker
+  volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json

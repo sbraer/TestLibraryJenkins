@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minimalapi
+spec:
+  selector:
+    matchLabels:
+      app: minimalapi
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: minimalapi
+    spec:
+      containers:
+      - name: minimalapi
+        image: sbraer/minimalapi:<TAG>
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          periodSeconds: 3
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          periodSeconds: 10
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+          successThreshold: 2
+          failureThreshold: 5
+      securityContext:
+        runAsUser: 34000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-lb-service-minimalapi
+spec:
+  type: LoadBalancer
+  selector:
+    app: minimalapi
+  ports:
+  - protocol: TCP
+    port: 8082
+    targetPort: 8080
+  #externalIPs: # <- minikube
+  #- 192.168.49.2 # <- minikube ip
